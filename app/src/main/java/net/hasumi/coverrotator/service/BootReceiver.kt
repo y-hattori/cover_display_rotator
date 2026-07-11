@@ -22,6 +22,9 @@ class BootReceiver : BroadcastReceiver() {
             action != Intent.ACTION_MY_PACKAGE_REPLACED
         ) return
 
+        // WRITE_SECURE_SETTINGSが付与済みなら、ワイヤレスデバッグを自動でONにする
+        WirelessDebugging.tryEnable(context)
+
         // DataStoreの読み出しはsuspendなので、goAsyncで受信処理を延長する
         val pendingResult = goAsync()
         CoroutineScope(Dispatchers.Default).launch {

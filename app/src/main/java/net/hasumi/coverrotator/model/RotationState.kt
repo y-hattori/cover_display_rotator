@@ -18,5 +18,6 @@ enum class RotationMode {
 data class CoverDisplayRotationState(
     val mode: net.hasumi.coverrotator.model.RotationMode,
     val isFixedToUserRotationEnabled: Boolean,
-    val isIgnoreOrientationRequestEnabled: Boolean
+    val isIgnoreOrientationRequestEnabled: Boolean,
+    val executorName: String
 )

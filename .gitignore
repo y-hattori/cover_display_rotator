@@ -1,0 +1,25 @@
+# Android Studio / IntelliJ
+*.iml
+/.idea/
+
+# Gradle
+.gradle/
+build/
+/local.properties
+
+# Native build
+.externalNativeBuild/
+.cxx/
+
+# Compiled artifacts
+*.class
+*.apk
+*.ap_
+*.dex
+
+# Signing material - never commit keystores
+*.jks
+*.keystore
+
+# OS
+.DS_Store

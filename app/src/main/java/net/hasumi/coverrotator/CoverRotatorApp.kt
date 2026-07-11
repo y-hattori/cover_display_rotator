@@ -11,5 +11,6 @@ class CoverRotatorApp : Application() {
         // libadb-android がAndroid標準のConscrypt(隠しAPI)を使うために必要
         HiddenApiBypass.addHiddenApiExemptions("")
         Graph.tryAutoConnectAdb()
+        Graph.startAdbAutoReconnectLoop()
     }
 }

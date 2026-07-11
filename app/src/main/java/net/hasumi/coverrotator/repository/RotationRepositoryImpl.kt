@@ -2,7 +2,9 @@ package net.hasumi.coverrotator.repository
 
 import android.content.Context
 import android.hardware.display.DisplayManager
+import net.hasumi.coverrotator.executor.AdbExecutor
 import net.hasumi.coverrotator.executor.ShellExecutor
+import net.hasumi.coverrotator.executor.ShizukuExecutor
 import net.hasumi.coverrotator.model.CoverDisplayRotationState
 import net.hasumi.coverrotator.model.RotationMode
 import kotlinx.coroutines.Dispatchers
@@ -26,10 +28,17 @@ class RotationRepositoryImpl(
     override suspend fun getCurrentRotationState(): Result<CoverDisplayRotationState> =
         withContext(Dispatchers.IO) {
             val id = getCoverDisplayId()
+            // 2つのコマンドで同じexecutorを使い、その名前も併せて返す(途中でShizuku/adbが切り替わらないように)
+            val executor = shellExecutor
+            val executorName = when (executor) {
+                is ShizukuExecutor -> "Shizuku"
+                is AdbExecutor -> "内蔵adb"
+                else -> "不明"
+            }
             try {
                 val dumpsysResult =
-                    shellExecutor.executeCommand("dumpsys window displays --display $id")
-                val wmResult = shellExecutor.executeCommand("wm user-rotation -d $id")
+                    executor.executeCommand("dumpsys window displays --display $id")
+                val wmResult = executor.executeCommand("wm user-rotation -d $id")
 
                 if (dumpsysResult.isFailure) {
                     return@withContext Result.failure(dumpsysResult.exceptionOrNull()!!)
@@ -59,7 +68,8 @@ class RotationRepositoryImpl(
                     CoverDisplayRotationState(
                         mode = mode,
                         isFixedToUserRotationEnabled = isFixedToUserRotationEnabled,
-                        isIgnoreOrientationRequestEnabled = isIgnoreOrientationRequestEnabled
+                        isIgnoreOrientationRequestEnabled = isIgnoreOrientationRequestEnabled,
+                        executorName = executorName
                     )
                 )
             } catch (e: Exception) {

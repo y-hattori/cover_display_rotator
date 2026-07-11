@@ -48,6 +48,9 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import android.content.Context
 import androidx.compose.runtime.LaunchedEffect
+import android.content.ClipData
+import android.content.ClipboardManager
+import net.hasumi.coverrotator.service.WirelessDebugging
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -62,13 +65,15 @@ fun SettingsScreen(
     val startOnBoot by settingsRepository.startOnBoot.collectAsState(initial = true)
 
     var batteryUnrestricted by remember { mutableStateOf(false) }
+    var wsPermissionGranted by remember { mutableStateOf(WirelessDebugging.hasPermission(context)) }
 
-    // 設定アプリから戻ってきたときに電池最適化の状態を再チェック
+    // 設定アプリ(またはターミナル)から戻ってきたときに電池最適化/WRITE_SECURE_SETTINGSの状態を再チェック
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
                 val pm = context.getSystemService(Context.POWER_SERVICE) as PowerManager
                 batteryUnrestricted = pm.isIgnoringBatteryOptimizations(context.packageName)
+                wsPermissionGranted = WirelessDebugging.hasPermission(context)
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
@@ -229,6 +234,40 @@ fun SettingsScreen(
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 modifier = Modifier.fillMaxWidth()
             )
+
+            HorizontalDivider()
+
+            Text("ワイヤレスデバッグの自動有効化", style = MaterialTheme.typography.titleMedium)
+            Text(
+                text = "WRITE_SECURE_SETTINGS権限を一度だけadb経由で付与すると、" +
+                        "再起動後にワイヤレスデバッグを自動でONにできます(ポート番号は下の自動検出が拾います)。",
+                style = MaterialTheme.typography.bodySmall
+            )
+            Text(
+                text = if (wsPermissionGranted) "権限: 付与済み" else "権限: 未付与",
+                color = if (wsPermissionGranted)
+                    MaterialTheme.colorScheme.onSurfaceVariant
+                else
+                    MaterialTheme.colorScheme.error
+            )
+            if (!wsPermissionGranted) {
+                val grantCommand = remember { WirelessDebugging.grantCommand(context) }
+                Text(
+                    text = grantCommand,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Button(
+                    onClick = {
+                        val clipboard =
+                            context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                        clipboard.setPrimaryClip(ClipData.newPlainText("adb command", grantCommand))
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("コマンドをコピー")
+                }
+            }
 
             HorizontalDivider()
 
