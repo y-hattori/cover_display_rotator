@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- テーマアイコン用単色レイヤー。塗り色はシステムが上書きする -->
+    <path
+        android:strokeColor="#000000"
+        android:strokeWidth="5"
+        android:strokeLineCap="round"
+        android:pathData="M54,24 A30,30 0 1,1 24,54" />
+    <path
+        android:fillColor="#000000"
+        android:pathData="M18,54 L30,54 L24,45 Z" />
+    <path
+        android:fillColor="#000000"
+        android:pathData="M43,38 L65,38 A5,5 0 0 1 70,43 L70,65 L54,65 L54,70 L43,70 A5,5 0 0 1 38,65 L38,43 A5,5 0 0 1 43,38 Z" />
+</vector>

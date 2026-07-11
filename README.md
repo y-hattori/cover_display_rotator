@@ -50,4 +50,21 @@
   ```bash
   wm fixed-to-user-rotation -d 1 default
   wm user-rotation -d 1 free
-  set-ignore-orientation-request -d 1 false
+  wm set-ignore-orientation-request -d 1 false
+  ```
+
+## 5. インストール
+本アプリはGoogle Playでは配布していません(Shizuku/ADB経由のシェルコマンド実行が前提のツールであり、Playの審査・自動スキャンとは相性が悪いため)。[GitHub Releases](../../releases)からAPKを直接ダウンロードしてインストールしてください。
+
+* 初回インストール時は「提供元不明のアプリ」の許可が必要です
+* リリースAPKの署名(SHA-256): `3A:44:D8:94:CB:54:A6:9C:AD:32:B5:B2:8C:D3:5C:61:36:58:58:86:39:0B:1D:F5:80:14:68:A9:96:7C:A1:5A`
+  (`apksigner verify --print-certs app-release.apk` で照合できます。バージョンアップ時も同じ鍵で署名されるため、この値は変わりません)
+
+## 6. リリース手順 (メンテナ向け)
+1. `app/build.gradle` の `versionCode` / `versionName` をインクリメント
+2. `.\gradlew.bat assembleRelease` を実行し、`app/build/outputs/apk/release/app-release.apk` を生成
+3. `apksigner verify --print-certs` で署名フィンガープリントが上記と一致することを確認
+4. `git tag vX.Y.Z && git push origin vX.Y.Z`
+5. GitHubのReleasesページで上記タグを対象に新規リリースを作成し、`app-release.apk` を添付、変更点を記載して公開
+
+※ `app/release.jks` と `local.properties` 内の署名パスワードはgit管理対象外。紛失すると同じ鍵での更新版を配布できなくなるため、別途安全な場所にバックアップすること。
